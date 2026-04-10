@@ -1,0 +1,312 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EasyRide</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+<style>
+body{
+margin:0;
+font-family:'Poppins',sans-serif;
+background:#f5f9ff;
+color:#000;
+}
+
+/* NAVBAR */
+.navbar{
+position:fixed;
+top:0;
+width:100%;
+padding:15px 10%;
+display:flex;
+align-items:center;
+justify-content:space-between;
+background:#fff;
+box-shadow:0 2px 10px rgba(0,0,0,0.1);
+}
+
+/* LOGO LEFT */
+.logo{
+font-size:1.5rem;
+font-weight:700;
+color:#007bff;
+display:flex;
+align-items:center;
+gap:10px;
+}
+
+.logo img{
+width:35px;
+height:35px;
+}
+
+/* CENTER NAV */
+.nav-links{
+position:absolute;
+left:50%;
+transform:translateX(-50%);
+display:flex;
+gap:25px;
+list-style:none;
+margin:0;
+padding:0;
+}
+
+.nav-links a{
+color:#000;
+text-decoration:none;
+font-weight:500;
+transition:0.3s;
+}
+
+.nav-links a:hover{
+color:#007bff;
+}
+
+/* SECTIONS */
+section{
+padding: 15px 10%;
+text-align:center;
+}
+
+/* HERO */
+.hero{
+background:#007bff;
+color:white;
+padding:100px 20px;
+border-radius:20px;
+}
+
+/* LOGO IN HOME */
+.hero-logo{
+width:120px;
+margin-bottom:20px;
+}
+
+/* SEARCH */
+.search-box{
+position:relative;
+padding:10px 20px;
+}
+
+input{
+padding:10px;
+width:250px;
+border-radius:8px;
+border:1px solid #ccc;
+}
+
+button{
+    margin: 10px 0;
+    padding:10px 20px;
+    background:#007bff;
+    color:white;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+}
+
+/* GRID */
+.grid{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+gap:20px;
+margin-top:30px;
+}
+
+/* CARDS */
+.card{
+background:#fff;
+padding:20px;
+border-radius:15px;
+box-shadow:0 5px 15px rgba(0,0,0,0.1);
+}
+
+.card img{
+width:100%;
+border-radius:10px;
+margin-bottom:10px;
+}
+
+/* ROUTES */
+.routes{
+margin-top:20px;
+}
+.routes li{
+background:#e6f0ff;
+padding:10px;
+margin:5px;
+border-radius:8px;
+list-style:none;
+}
+
+/* SUGGESTIONS */
+#suggestions{
+background:#fff;
+border-radius:10px;
+position:absolute;
+width:250px;
+box-shadow:0 5px 15px rgba(0,0,0,0.2);
+}
+
+.suggestion-item{
+padding:10px;
+cursor:pointer;
+}
+
+.suggestion-item:hover{
+background:#007bff;
+color:white;
+}
+</style>
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+
+<!-- LEFT LOGO -->
+<div class="logo">
+<img src="logo.JPEG" alt="logo">
+EasyRide
+</div>
+
+<!-- CENTER NAV -->
+<ul class="nav-links">
+<li><a href="#home">Home</a></li>
+<li><a href="#map">Traffic</a></li>
+<li><a href="#routes">Routes</a></li>
+<li><a href="#time">Best Time</a></li>
+</ul>
+
+</nav>
+
+<!-- HERO -->
+<section id="home">
+<div class="hero">
+
+<img src="logo.JPEG" class="hero-logo">
+
+<h1>EasyRide</h1>
+<p>Smart Traffic System for Kigali</p>
+
+</div>
+</section>
+
+<!-- TRAFFIC -->
+<section id="map">
+    <h2>Traffic Checker</h2>
+
+    <div class="search-box">
+        <input id="locationInput" placeholder="Search Kigali location..." onkeyup="showSuggestions()">
+        <div id="suggestions"></div>
+    </div>
+
+<button onclick="runSystem()">Check</button>
+
+<iframe id="mapFrame" width="100%" height="300"
+src="https://www.google.com/maps?q=Kigali&output=embed"></iframe>
+
+<h3 id="trafficResult"></h3>
+<p id="suggestion"></p>
+
+<ul id="routeList" class="routes"></ul>
+
+</section>
+
+<!-- ROUTES -->
+<section id="routes">
+<h2>Alternative Routes</h2>
+<div class="grid">
+<div class="card"><img src="route1.JPEG"><p>Smart route suggestions</p></div>
+<div class="card"><img src="route2.JPEG"><p>Nearby road analysis</p></div>
+</div>
+</section>
+
+<!-- TIME -->
+<section id="time">
+<h2>Best Travel Time</h2>
+<h3 id="timeResult"></h3>
+<p id="timeSuggestion"></p>
+</section>
+
+<script>
+
+let locations = ["kinyinya","kabeza","kanombe","remera","nyamirambo",
+"kimironko","gacuriro","kicukiro","nyabugogo","kimihurura","gisozi","kagugu"];
+
+let trafficData = {};
+locations.forEach(loc=>{
+trafficData[loc] = ["Low","Medium","High"][Math.floor(Math.random()*3)];
+});
+
+let routesData = {
+"kinyinya":["Gacuriro","Kagugu"],
+"kabeza":["Airport Road","Kicukiro"],
+"kanombe":["KK15 Road","Nyarugunga"],
+"default":["Nearby alternative road"]
+};
+
+let timeData = {
+"default":{peak:"7-9AM & 5-7PM",best:"10AM-3PM"}
+};
+
+function showSuggestions(){
+let input = document.getElementById("locationInput").value.toLowerCase();
+let box = document.getElementById("suggestions");
+box.innerHTML="";
+
+locations.filter(l=>l.includes(input)).forEach(loc=>{
+let div=document.createElement("div");
+div.className="suggestion-item";
+div.innerHTML=loc;
+div.onclick=()=>{
+document.getElementById("locationInput").value=loc;
+box.innerHTML="";
+runSystem();
+};
+box.appendChild(div);
+});
+}
+
+function runSystem(){
+let loc=document.getElementById("locationInput").value.toLowerCase();
+
+document.getElementById("mapFrame").src=
+"https://www.google.com/maps?q="+loc+",kigali&output=embed";
+
+let level=trafficData[loc] || "Medium";
+
+let icon = level==="High"?"🔴":level==="Medium"?"🟡":"🟢";
+document.getElementById("trafficResult").innerHTML=loc.toUpperCase()+" "+icon+" "+level;
+
+let routeList=document.getElementById("routeList");
+routeList.innerHTML="";
+
+if(level==="High"){
+document.getElementById("suggestion").innerHTML="Heavy traffic detected.";
+
+(routesData[loc] || routesData["default"]).forEach(r=>{
+let li=document.createElement("li");
+li.innerHTML=r;
+routeList.appendChild(li);
+});
+}else{
+document.getElementById("suggestion").innerHTML="Traffic manageable.";
+}
+
+document.getElementById("timeResult").innerHTML=loc.toUpperCase();
+document.getElementById("timeSuggestion").innerHTML=
+"Peak: "+timeData.default.peak+"<br>Best: "+timeData.default.best;
+}
+
+</script>
+
+</body>
+</html>
+```
